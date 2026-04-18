@@ -1,0 +1,1096 @@
+{
+  "root": "d:\\collage\\major project\\ml_node_",
+  "files_read": 84,
+  "python_files": 79,
+  "total_lines": 16472,
+  "records": [
+    {
+      "path": ".gitignore",
+      "lines": 1,
+      "kind": ".gitignore"
+    },
+    {
+      "path": "pyproject.toml",
+      "lines": 1,
+      "kind": ".toml"
+    },
+    {
+      "path": "README.md",
+      "lines": 1,
+      "kind": ".md"
+    },
+    {
+      "path": "requirements.txt",
+      "lines": 1,
+      "kind": ".txt"
+    },
+    {
+      "path": "src/main.py",
+      "lines": 21,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "sys",
+        "PySide6.QtWidgets",
+        "ui.main_window"
+      ],
+      "functions": [
+        "main"
+      ],
+      "classes": []
+    },
+    {
+      "path": "src/advisor/advisor_engine.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/advisor/heuristics.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/advisor/rules.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/advisor/suggestions.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/app/app_controller.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/app/app_state.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/app/settings.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/data_engine/chunk_loader.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/data_engine/dataset_manager.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/data_engine/sample_cache.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/data_engine/schema_infer.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/engine/graph_validator.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/engine/node_runner.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/engine/pipeline_executor.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/engine/scheduler.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/nodes/registry.py",
+      "lines": 152,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "nodes.io.dataset_loader_node",
+        "nodes.io.export_node",
+        "nodes.preprocess.missing_value_node",
+        "nodes.preprocess.scaling_node",
+        "nodes.preprocess.encoding_node",
+        "nodes.preprocess.feature_select_node",
+        "nodes.split.train_test_split_node",
+        "nodes.split.time_series_split_node",
+        "nodes.models.model_selector_node",
+        "nodes.models.classification_node",
+        "nodes.models.regression_node",
+        "nodes.models.clustering_node",
+        "nodes.models.anomaly_node",
+        "nodes.models.nn_node",
+        "nodes.eval.metrics_node",
+        "nodes.eval.report_node",
+        "nodes.eval.visualization_node",
+        "nodes.system.resource_control_node"
+      ],
+      "functions": [
+        "get_node_runtime",
+        "list_available_nodes",
+        "get_node_categories"
+      ],
+      "classes": []
+    },
+    {
+      "path": "src/resources/icons.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/resources/strings.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/storage/model_store.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/storage/project_io.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/storage/report_store.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/ui/app_settings.py",
+      "lines": 207,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "dataclasses",
+        "typing",
+        "PySide6.QtCore"
+      ],
+      "functions": [],
+      "classes": [
+        "SettingKey",
+        "AppSettings"
+      ]
+    },
+    {
+      "path": "src/ui/main_window.py",
+      "lines": 1647,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "pathlib",
+        "sys",
+        "ctypes",
+        "json",
+        "base64",
+        "hashlib",
+        "PySide6.QtGui",
+        "PySide6.QtCore",
+        "PySide6.QtWidgets",
+        "ui.app_settings",
+        "ui.windows.settings_window",
+        "ui.windows.node_editor_window",
+        "ui.windows.node_properties_window",
+        "ui.windows.data_window",
+        "ui.windows.data_statistics_window",
+        "ui.windows.data_profiler_window",
+        "ui.windows.node_output_window",
+        "ui.windows.ai_advisor_window",
+        "ui.windows.model_output_window"
+      ],
+      "functions": [],
+      "classes": [
+        "_GradientBackground",
+        "_AnimatedCard",
+        "_GlowButton",
+        "MainWindow"
+      ]
+    },
+    {
+      "path": "src/utils/config.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/utils/io.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/utils/logger.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/utils/validation.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/ui/styles/dark.qss",
+      "lines": 1,
+      "kind": ".qss"
+    },
+    {
+      "path": "src/ui/widgets/node_palette.py",
+      "lines": 176,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "collections",
+        "typing",
+        "PySide6.QtCore",
+        "PySide6.QtWidgets"
+      ],
+      "functions": [],
+      "classes": [
+        "NodePaletteWidget"
+      ]
+    },
+    {
+      "path": "src/ui/widgets/property_panel.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/ui/widgets/status_bar.py",
+      "lines": 67,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "PySide6.QtCore",
+        "PySide6.QtWidgets"
+      ],
+      "functions": [],
+      "classes": [
+        "NodeEditorStatusBar"
+      ]
+    },
+    {
+      "path": "src/ui/widgets/toolbar.py",
+      "lines": 129,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "PySide6.QtCore",
+        "PySide6.QtGui",
+        "PySide6.QtWidgets"
+      ],
+      "functions": [
+        "_tool_btn"
+      ],
+      "classes": [
+        "NodeEditorToolbar"
+      ]
+    },
+    {
+      "path": "src/ui/windows/ai_advisor_window.py",
+      "lines": 16,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "PySide6.QtWidgets"
+      ],
+      "functions": [],
+      "classes": [
+        "AIAdvisorWindow"
+      ]
+    },
+    {
+      "path": "src/ui/windows/data_profiler_window.py",
+      "lines": 290,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "datetime",
+        "pathlib",
+        "webbrowser",
+        "pandas",
+        "PySide6.QtCore",
+        "PySide6.QtWidgets"
+      ],
+      "functions": [],
+      "classes": [
+        "DataProfilerWindow"
+      ]
+    },
+    {
+      "path": "src/ui/windows/data_statistics_window.py",
+      "lines": 607,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "PySide6.QtWidgets",
+        "PySide6.QtCore",
+        "PySide6.QtGui",
+        "pandas",
+        "numpy"
+      ],
+      "functions": [],
+      "classes": [
+        "DataStatisticsWindow"
+      ]
+    },
+    {
+      "path": "src/ui/windows/data_window.py",
+      "lines": 226,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "PySide6.QtWidgets",
+        "PySide6.QtCore",
+        "pandas"
+      ],
+      "functions": [],
+      "classes": [
+        "DataPreviewWindow"
+      ]
+    },
+    {
+      "path": "src/ui/windows/model_output_window.py",
+      "lines": 17,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "PySide6.QtWidgets"
+      ],
+      "functions": [],
+      "classes": [
+        "ModelOutputWindow"
+      ]
+    },
+    {
+      "path": "src/ui/windows/node_editor_window.py",
+      "lines": 4304,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "PySide6.QtCore",
+        "PySide6.QtGui",
+        "PySide6.QtWidgets",
+        "inspect",
+        "pandas",
+        "shiboken6",
+        "nodes.base.node_graph_scene",
+        "nodes.base.node_base",
+        "nodes.base.port",
+        "nodes.base.edge",
+        "nodes.base.link_model"
+      ],
+      "functions": [
+        "_build_node_catalog",
+        "_build_option_widget",
+        "_all_pandas_readers",
+        "_reader_signature",
+        "_reader_fields",
+        "_build_field_widget",
+        "_browse_file",
+        "_collect_reader_kwargs",
+        "_infer_port_type"
+      ],
+      "classes": [
+        "NodeEditorWindow",
+        "NodeGraphView",
+        "NodeMenuDialog",
+        "ComboButton",
+        "DatasetLoaderConfigWidget",
+        "ColumnSelectionDialog",
+        "LinkInspectorDialog"
+      ]
+    },
+    {
+      "path": "src/ui/windows/node_output_window.py",
+      "lines": 504,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "PySide6.QtWidgets",
+        "PySide6.QtCore",
+        "PySide6.QtGui",
+        "pandas",
+        "json"
+      ],
+      "functions": [],
+      "classes": [
+        "NodeOutputWindow"
+      ]
+    },
+    {
+      "path": "src/ui/windows/node_properties_window.py",
+      "lines": 902,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "PySide6.QtWidgets",
+        "PySide6.QtCore",
+        "inspect",
+        "pandas"
+      ],
+      "functions": [
+        "_get_reader_params",
+        "_get_param_description"
+      ],
+      "classes": [
+        "NodePropertiesWindow"
+      ]
+    },
+    {
+      "path": "src/ui/windows/settings_window.py",
+      "lines": 974,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "platform",
+        "sys",
+        "datetime",
+        "PySide6.QtCore",
+        "PySide6.QtWidgets",
+        "ui.app_settings"
+      ],
+      "functions": [],
+      "classes": [
+        "SettingsWindow"
+      ]
+    },
+    {
+      "path": "src/nodes/base/edge.py",
+      "lines": 346,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "PySide6.QtCore",
+        "PySide6.QtGui",
+        "math",
+        "PySide6.QtWidgets",
+        "shiboken6",
+        "nodes.base.link_model"
+      ],
+      "functions": [],
+      "classes": [
+        "EdgeItem"
+      ]
+    },
+    {
+      "path": "src/nodes/base/link_model.py",
+      "lines": 261,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "dataclasses",
+        "uuid",
+        "enum",
+        "typing"
+      ],
+      "functions": [],
+      "classes": [
+        "ColumnRole",
+        "LinkState",
+        "ColumnConfig",
+        "LinkModel"
+      ]
+    },
+    {
+      "path": "src/nodes/base/node_base.py",
+      "lines": 618,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "PySide6.QtCore",
+        "PySide6.QtGui",
+        "PySide6.QtWidgets",
+        "uuid",
+        "weakref",
+        "shiboken6",
+        "nodes.base.port"
+      ],
+      "functions": [
+        "_rounded_rect_path",
+        "_top_rounded_path",
+        "_bottom_rounded_path"
+      ],
+      "classes": [
+        "NodeItem",
+        "ResizeHandle"
+      ]
+    },
+    {
+      "path": "src/nodes/base/node_graph_scene.py",
+      "lines": 63,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "PySide6.QtWidgets",
+        "shiboken6",
+        "nodes.base.node_base"
+      ],
+      "functions": [],
+      "classes": [
+        "NodeGraphScene"
+      ]
+    },
+    {
+      "path": "src/nodes/base/node_runtime.py",
+      "lines": 155,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "abc",
+        "dataclasses",
+        "typing",
+        "time",
+        "pandas",
+        "numpy"
+      ],
+      "functions": [
+        "ensure_dataframe",
+        "safe_column_select"
+      ],
+      "classes": [
+        "NodeResult",
+        "NodeContext",
+        "NodeRuntime"
+      ]
+    },
+    {
+      "path": "src/nodes/base/port.py",
+      "lines": 47,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "PySide6.QtCore",
+        "PySide6.QtGui",
+        "PySide6.QtWidgets",
+        "uuid"
+      ],
+      "functions": [],
+      "classes": [
+        "PortItem"
+      ]
+    },
+    {
+      "path": "src/nodes/eval/metrics_node.py",
+      "lines": 135,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "typing",
+        "pandas",
+        "numpy",
+        "nodes.base.node_runtime"
+      ],
+      "functions": [],
+      "classes": [
+        "MetricsNode"
+      ]
+    },
+    {
+      "path": "src/nodes/eval/report_node.py",
+      "lines": 359,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "typing",
+        "json",
+        "datetime",
+        "pandas",
+        "numpy",
+        "nodes.base.node_runtime"
+      ],
+      "functions": [],
+      "classes": [
+        "ReportNode",
+        "ModelExplainerNode"
+      ]
+    },
+    {
+      "path": "src/nodes/eval/visualization_node.py",
+      "lines": 330,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "typing",
+        "io",
+        "base64",
+        "pandas",
+        "numpy",
+        "nodes.base.node_runtime"
+      ],
+      "functions": [],
+      "classes": [
+        "VisualizationNode"
+      ]
+    },
+    {
+      "path": "src/nodes/io/dataset_loader_node.py",
+      "lines": 329,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "typing",
+        "json",
+        "pandas",
+        "numpy",
+        "nodes.base.node_runtime"
+      ],
+      "functions": [],
+      "classes": [
+        "DatasetLoaderNode",
+        "DataPreviewNode",
+        "DatasetMergerNode",
+        "ColumnSelectorNode",
+        "FilterNode",
+        "FinalOutputNode"
+      ]
+    },
+    {
+      "path": "src/nodes/io/export_node.py",
+      "lines": 183,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "typing",
+        "os",
+        "pathlib",
+        "pandas",
+        "numpy",
+        "nodes.base.node_runtime"
+      ],
+      "functions": [],
+      "classes": [
+        "ExportModelNode",
+        "InferenceNode"
+      ]
+    },
+    {
+      "path": "src/nodes/models/anomaly_node.py",
+      "lines": 193,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "typing",
+        "pandas",
+        "numpy",
+        "nodes.base.node_runtime"
+      ],
+      "functions": [],
+      "classes": [
+        "AnomalyNode"
+      ]
+    },
+    {
+      "path": "src/nodes/models/classification_node.py",
+      "lines": 171,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "typing",
+        "pandas",
+        "numpy",
+        "nodes.base.node_runtime"
+      ],
+      "functions": [],
+      "classes": [
+        "ClassificationNode"
+      ]
+    },
+    {
+      "path": "src/nodes/models/clustering_node.py",
+      "lines": 143,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "typing",
+        "pandas",
+        "numpy",
+        "nodes.base.node_runtime"
+      ],
+      "functions": [],
+      "classes": [
+        "ClusteringNode"
+      ]
+    },
+    {
+      "path": "src/nodes/models/model_selector_node.py",
+      "lines": 361,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "typing",
+        "numpy",
+        "nodes.base.node_runtime"
+      ],
+      "functions": [],
+      "classes": [
+        "ModelSelectorNode",
+        "TrainingNode",
+        "HyperparameterTunerNode",
+        "EnsembleBuilderNode"
+      ]
+    },
+    {
+      "path": "src/nodes/models/nn_node.py",
+      "lines": 327,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "typing",
+        "pandas",
+        "numpy",
+        "nodes.base.node_runtime"
+      ],
+      "functions": [],
+      "classes": [
+        "NeuralNetNode"
+      ]
+    },
+    {
+      "path": "src/nodes/models/regression_node.py",
+      "lines": 158,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "typing",
+        "pandas",
+        "numpy",
+        "nodes.base.node_runtime"
+      ],
+      "functions": [],
+      "classes": [
+        "RegressionNode"
+      ]
+    },
+    {
+      "path": "src/nodes/preprocess/encoding_node.py",
+      "lines": 167,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "typing",
+        "pandas",
+        "numpy",
+        "nodes.base.node_runtime"
+      ],
+      "functions": [],
+      "classes": [
+        "EncodingNode"
+      ]
+    },
+    {
+      "path": "src/nodes/preprocess/feature_select_node.py",
+      "lines": 297,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "typing",
+        "pandas",
+        "numpy",
+        "nodes.base.node_runtime"
+      ],
+      "functions": [],
+      "classes": [
+        "FeatureSelectNode",
+        "TextPreprocessorNode"
+      ]
+    },
+    {
+      "path": "src/nodes/preprocess/missing_value_node.py",
+      "lines": 159,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "typing",
+        "pandas",
+        "numpy",
+        "nodes.base.node_runtime"
+      ],
+      "functions": [],
+      "classes": [
+        "MissingValueNode",
+        "DataTypeConverterNode"
+      ]
+    },
+    {
+      "path": "src/nodes/preprocess/scaling_node.py",
+      "lines": 281,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "typing",
+        "pandas",
+        "numpy",
+        "nodes.base.node_runtime"
+      ],
+      "functions": [],
+      "classes": [
+        "ScalingNode",
+        "OutlierHandlerNode"
+      ]
+    },
+    {
+      "path": "src/nodes/split/time_series_split_node.py",
+      "lines": 153,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "typing",
+        "pandas",
+        "numpy",
+        "nodes.base.node_runtime"
+      ],
+      "functions": [],
+      "classes": [
+        "TimeSeriesSplitNode"
+      ]
+    },
+    {
+      "path": "src/nodes/split/train_test_split_node.py",
+      "lines": 423,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "typing",
+        "pandas",
+        "numpy",
+        "nodes.base.node_runtime"
+      ],
+      "functions": [],
+      "classes": [
+        "TrainTestSplitNode",
+        "TrainValTestSplitNode",
+        "CrossValidationSplitNode",
+        "BatchControllerNode",
+        "ConditionalRouterNode"
+      ]
+    },
+    {
+      "path": "src/nodes/system/resource_control_node.py",
+      "lines": 530,
+      "kind": ".py",
+      "imports": [
+        "__future__",
+        "typing",
+        "os",
+        "time",
+        "datetime",
+        "json",
+        "pathlib",
+        "pandas",
+        "numpy",
+        "nodes.base.node_runtime"
+      ],
+      "functions": [],
+      "classes": [
+        "ResourceControlNode",
+        "DebugInspectorNode",
+        "DataLoggerNode",
+        "CheckpointNode",
+        "TimerNode",
+        "LoopControllerNode",
+        "NoteCommentNode",
+        "AIAdvisorNode"
+      ]
+    },
+    {
+      "path": "src/ml/algorithms/catboost_wrapper.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/ml/algorithms/lightgbm_wrapper.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/ml/algorithms/river_wrappers.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/ml/algorithms/sklearn_wrappers.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/ml/algorithms/xgboost_wrapper.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/ml/feature_engineering/encoding.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/ml/feature_engineering/imputation.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/ml/feature_engineering/scaling.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/ml/metrics/classification_metrics.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/ml/metrics/clustering_metrics.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/ml/metrics/regression_metrics.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/ml/training/batch_trainer.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/ml/training/checkpointing.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    },
+    {
+      "path": "src/ml/training/incremental_trainer.py",
+      "lines": 1,
+      "kind": ".py",
+      "imports": [],
+      "functions": [],
+      "classes": []
+    }
+  ]
+}
