@@ -57,8 +57,12 @@ class NeuralNetNode(NodeRuntime):
             layer_sizes = [int(x.strip()) for x in hidden_layers.split(",")]
             
             # Determine task type
-            n_classes = len(np.unique(y_train))
-            is_classification = n_classes < 50  # Heuristic
+            classes, y_encoded = np.unique(y_train, return_inverse=True)
+            n_classes = len(classes)
+            is_numeric_target = np.issubdtype(np.asarray(y_train).dtype, np.number)
+            is_classification = architecture != "AutoEncoder" and (
+                not is_numeric_target or n_classes < 50  # Heuristic
+            )
             
             # Build model
             model = self._build_model(
@@ -84,9 +88,8 @@ class NeuralNetNode(NodeRuntime):
                 X_clean = X_clean[..., np.newaxis]
             
             if is_classification:
-                # One-hot encode for multi-class
-                if n_classes > 2:
-                    y_clean = keras.utils.to_categorical(y_clean, n_classes)
+                # Integer labels 0..k-1 to match sparse_categorical / binary crossentropy.
+                y_clean = y_encoded.astype(int)
             elif architecture == "AutoEncoder":
                 # Autoencoders reconstruct the input.
                 y_clean = X_clean
@@ -105,6 +108,8 @@ class NeuralNetNode(NodeRuntime):
             self.set_fitted_state("model", model)
             self.set_fitted_state("is_classification", is_classification)
             self.set_fitted_state("n_classes", n_classes)
+            if is_classification:
+                self.set_fitted_state("classes", classes.tolist())
             
             # Architecture summary
             architecture_info = {
@@ -113,6 +118,7 @@ class NeuralNetNode(NodeRuntime):
                 "activation": activation,
                 "dropout": dropout,
                 "total_params": model.count_params(),
+                "classes": classes.tolist() if is_classification else None,
             }
             
             return NodeResult(
@@ -138,7 +144,7 @@ class NeuralNetNode(NodeRuntime):
         """Build neural network model."""
         act_map = {
             "ReLU": "relu",
-            "LeakyReLU": keras.layers.LeakyReLU(),
+            "LeakyReLU": "leaky_relu",
             "Tanh": "tanh",
             "Sigmoid": "sigmoid",
             "GELU": "gelu",
@@ -196,6 +202,7 @@ class NeuralNetNode(NodeRuntime):
         model = keras.Sequential()
         model.add(keras.layers.Input(shape=(input_shape, 1)))
         
+        steps = input_shape
         for i, units in enumerate(layer_sizes[:3]):  # Max 3 conv layers
             model.add(keras.layers.Conv1D(units, kernel_size=3, padding='same'))
             if batch_norm:
@@ -204,7 +211,9 @@ class NeuralNetNode(NodeRuntime):
                 model.add(keras.layers.Activation(activation))
             else:
                 model.add(activation)
-            model.add(keras.layers.MaxPooling1D(2))
+            if steps >= 2:
+                model.add(keras.layers.MaxPooling1D(2))
+                steps //= 2
             if dropout > 0:
                 model.add(keras.layers.Dropout(dropout))
         

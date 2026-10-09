@@ -68,32 +68,42 @@ class MetricsNode(NodeRuntime):
                     return NodeResult(outputs={}, success=False, error_message="No predictions")
             
             # Determine task type
+            labels = np.unique(np.concatenate([np.asarray(y_test).ravel(), np.asarray(predictions).ravel()]))
             n_unique = len(np.unique(y_test))
-            is_classification = n_unique < 20  # Heuristic
+            is_numeric = np.issubdtype(np.asarray(y_test).dtype, np.number)
+            is_classification = (not is_numeric) or n_unique < 20  # Heuristic
             
             metrics = {}
             
             if is_classification and SKLEARN_AVAILABLE:
+                model_classes = getattr(model, "classes_", None) if model is not None else None
+                if model_classes is not None and len(model_classes) == 2:
+                    pos_label = model_classes[1]
+                else:
+                    pos_label = labels[-1] if len(labels) else 1
+                is_binary = len(labels) == 2
+                avg = "binary" if is_binary else "weighted"
+                avg_kwargs = {"average": avg, "zero_division": 0}
+                if is_binary:
+                    avg_kwargs["pos_label"] = pos_label
+
                 # Classification metrics
                 if calc_accuracy:
                     metrics["accuracy"] = float(accuracy_score(y_test, predictions))
                 
                 if calc_precision:
-                    avg = "binary" if n_unique == 2 else "weighted"
-                    metrics["precision"] = float(precision_score(y_test, predictions, average=avg, zero_division=0))
+                    metrics["precision"] = float(precision_score(y_test, predictions, **avg_kwargs))
                 
                 if calc_recall:
-                    avg = "binary" if n_unique == 2 else "weighted"
-                    metrics["recall"] = float(recall_score(y_test, predictions, average=avg, zero_division=0))
+                    metrics["recall"] = float(recall_score(y_test, predictions, **avg_kwargs))
                 
                 if calc_f1:
-                    avg = "binary" if n_unique == 2 else "weighted"
-                    metrics["f1"] = float(f1_score(y_test, predictions, average=avg, zero_division=0))
+                    metrics["f1"] = float(f1_score(y_test, predictions, **avg_kwargs))
                 
                 if calc_roc and probabilities is not None:
                     try:
                         if n_unique == 2:
-                            metrics["roc_auc"] = float(roc_auc_score(y_test, probabilities[:, 1]))
+                            metrics["roc_auc"] = float(roc_auc_score(y_test == pos_label, probabilities[:, 1]))
                         else:
                             metrics["roc_auc"] = float(roc_auc_score(y_test, probabilities, multi_class="ovr"))
                     except Exception:

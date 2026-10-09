@@ -175,6 +175,7 @@ class _EngineWorker(QObject):
                     "success": bool(getattr(node_result, "success", False)),
                     "node_title": str(getattr(node_result, "node_title", "") or ""),
                     "primary_output": getattr(node_result, "primary_output", None),
+                    "outputs": dict(getattr(node_result, "outputs", None) or {}),
                     "error_message": getattr(node_result, "error_message", None),
                 }
 
@@ -266,7 +267,7 @@ class NodeEditorWindow(QWidget):
             QPainter.Antialiasing | QPainter.SmoothPixmapTransform
         )
         self._view.setDragMode(QGraphicsView.RubberBandDrag)
-        self._view.setViewportUpdateMode(QGraphicsView.SmartViewportUpdate)
+        self._view.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
         self._view.setBackgroundBrush(Qt.transparent)
         self._view.set_columns_selected_callback(self.columns_selected.emit)
         
@@ -682,6 +683,7 @@ class NodeEditorWindow(QWidget):
                         "title": item.title,
                         "pos": [float(pos.x()), float(pos.y())],
                         "size": [int(getattr(item, "width", 300)), int(getattr(item, "height", 180))],
+                        "manual_size": bool(item.has_manual_size()),
                         "extra_params": item.get_extra_params(),
                         "options": self._view._extract_node_options(item),
                         "dataframe": df_blob,
@@ -795,10 +797,11 @@ class NodeEditorWindow(QWidget):
             except Exception:
                 pass
 
-            # Restore size
+            # Restore size only if the user resized the card; otherwise keep the content-fit size.
             try:
-                size = nd.get("size", [300, 180])
-                node.resize_to(int(size[0]), int(size[1]))
+                size = nd.get("size")
+                if nd.get("manual_size") and size:
+                    node.resize_to(int(size[0]), int(size[1]))
             except Exception:
                 pass
 
@@ -1055,6 +1058,8 @@ class NodeEditorWindow(QWidget):
         def walk(w):
             # Apply value if objectName matches
             key = w.objectName() if hasattr(w, "objectName") else ""
+            if key.startswith("qt_"):
+                return
             if key and key in options:
                 val = options[key]
                 try:
@@ -1148,7 +1153,7 @@ class NodeGraphView(QGraphicsView):
         self.setRenderHint(QPainter.Antialiasing, True)
         self.setRenderHint(QPainter.SmoothPixmapTransform, True)
         self.setRenderHint(QPainter.TextAntialiasing, True)
-        self.setViewportUpdateMode(QGraphicsView.SmartViewportUpdate)
+        self.setViewportUpdateMode(QGraphicsView.FullViewportUpdate)
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
         self.setResizeAnchor(QGraphicsView.AnchorViewCenter)
         # Enable proper interaction with embedded widgets
@@ -1860,6 +1865,7 @@ class NodeGraphView(QGraphicsView):
             target_node.set_input_dataframe(joined_input_df)
             execution_input_df = joined_input_df
             runtime_inputs = self._prepare_runtime_inputs(node_title, execution_input_df, target_node)
+            runtime_inputs.update({pname: input_store[pname].copy() for pname in ordered_ports if pname in input_store})
         else:
             # Store input dataframe in target node (for input view button) when available.
             if input_df is not None:
@@ -1954,7 +1960,7 @@ class NodeGraphView(QGraphicsView):
                 try:
                     cols = list(getattr(item.link, "columns_passed", []) or [])
                 except Exception:
-                    cols = list(getattr(item, "columns", []) or [])
+                    cols = self._link_columns(item)
                 edges_payload.append(
                     {
                         "source": {"node_id": src_id, "port_name": str(getattr(src_port, "name", "") or "")},
@@ -1982,13 +1988,18 @@ class NodeGraphView(QGraphicsView):
             node = node_map.get(nid)
             if node is None:
                 continue
-            nodes_payload.append(
-                {
-                    "node_id": nid,
-                    "title": str(getattr(node, "title", "") or ""),
-                    "options": self._extract_node_options(node),
-                }
-            )
+            node_payload = {
+                "node_id": nid,
+                "title": str(getattr(node, "title", "") or ""),
+                "options": self._extract_node_options(node),
+            }
+            if nid == source_id:
+                outputs = getattr(node, "_runtime_outputs", None)
+                node_payload["precomputed_outputs"] = (
+                    dict(outputs) if isinstance(outputs, dict) and outputs else {"Data": source_df}
+                )
+                node_payload["precomputed_primary"] = source_df
+            nodes_payload.append(node_payload)
 
         reachable_edges = [
             e for e in edges_payload
@@ -2052,8 +2063,10 @@ class NodeGraphView(QGraphicsView):
             target_node = self._find_node_by_id(str(node_id))
             if target_node is None:
                 continue
+            if not res.get("success", True):
+                continue
             output_df = res.get("primary_output")
-            self._apply_node_result(target_node, output_df, None, trigger_downstream=False)
+            self._apply_node_result(target_node, output_df, res.get("outputs") or None, trigger_downstream=False)
 
         if self._pending_pipeline_payload:
             self._pipeline_debounce_timer.start(30)
@@ -2155,6 +2168,26 @@ class NodeGraphView(QGraphicsView):
         except Exception:
             return None
 
+    @staticmethod
+    def _link_columns(edge) -> list[str]:
+        """Columns the user chose for this link (empty or ['*'] means all)."""
+        try:
+            if getattr(edge, "link", None) is not None:
+                return list(edge.link.columns_passed or [])
+            return list(getattr(edge, "columns", []) or [])
+        except Exception:
+            return []
+
+    def _filter_link_columns(self, edge, payload):
+        """Apply the link's column selection to a DataFrame payload."""
+        if not isinstance(payload, pd.DataFrame):
+            return payload
+        cols = self._link_columns(edge)
+        if not cols or "*" in cols:
+            return payload
+        keep = [c for c in cols if c in payload.columns]
+        return payload[keep].copy() if keep else payload
+
     def _collect_connected_inputs(self, node) -> dict:
         """Collect target inputs from connected upstream source ports."""
         from nodes.base.edge import EdgeItem
@@ -2185,7 +2218,7 @@ class NodeGraphView(QGraphicsView):
                 payload = self._resolve_source_payload(src_node, src_port)
                 if payload is None:
                     continue
-                connected[str(getattr(tgt_port, "name", "") or "")] = payload
+                connected[str(getattr(tgt_port, "name", "") or "")] = self._filter_link_columns(item, payload)
             except RuntimeError:
                 continue
         return connected
@@ -2432,6 +2465,9 @@ class NodeGraphView(QGraphicsView):
             return
 
         try:
+            # Qt-internal children (e.g. a spin box's "qt_spinbox_lineedit") are not options.
+            if widget.objectName().startswith("qt_"):
+                return
             # Check if this widget has a value
             widget_name = widget.objectName() or parent_label
             
@@ -3354,7 +3390,7 @@ def _build_node_catalog() -> list[dict]:
             "category": "Model",
             "desc": "Deep learning model",
             "inputs": ["X_train", "y_train"],
-            "outputs": ["NN Model", "Architecture"],
+            "outputs": ["NN Model", "Architecture", "Training History"],
             "options": [
                 {"type": "combo", "label": "Architecture", "items": ["MLP", "CNN", "RNN", "LSTM", "GRU", "Transformer", "AutoEncoder"]},
                 {"type": "text", "label": "Hidden Layers", "value": "128,64,32"},
@@ -3809,13 +3845,14 @@ def _build_option_widget(option: dict, parent_node=None) -> QWidget | None:
     layout = QHBoxLayout(row)
     layout.setContentsMargins(0, 0, 0, 0)
     layout.setSpacing(8)
-    label = QLabel(option.get("label", ""))
-    label.setStyleSheet("color: rgba(255, 255, 255, 190);")
-    layout.addWidget(label)
-
     widget: QWidget | None = None
     opt_type = option.get("type")
     label_name = option.get("label", "")
+
+    if opt_type != "check":
+        label = QLabel(label_name)
+        label.setStyleSheet("color: rgba(255, 255, 255, 190);")
+        layout.addWidget(label)
     
     if opt_type == "combo":
         # Use custom ComboButton instead of QComboBox (works in QGraphicsProxyWidget)
@@ -3839,7 +3876,7 @@ def _build_option_widget(option: dict, parent_node=None) -> QWidget | None:
         widget.setValue(option.get("value", 0.0))
         widget.setObjectName(label_name)
     elif opt_type == "check":
-        widget = QCheckBox()
+        widget = QCheckBox(label_name)
         widget.setFocusPolicy(Qt.StrongFocus)
         widget.setChecked(option.get("value", False))
         widget.setObjectName(label_name)
@@ -3858,9 +3895,9 @@ def _build_option_widget(option: dict, parent_node=None) -> QWidget | None:
         widget.setObjectName(label_name)
     elif opt_type == "file":
         container = QWidget()
-        layout = QHBoxLayout(container)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(6)
+        file_layout = QHBoxLayout(container)
+        file_layout.setContentsMargins(0, 0, 0, 0)
+        file_layout.setSpacing(6)
         path_edit = QLineEdit()
         path_edit.setFocusPolicy(Qt.StrongFocus)
         path_edit.setAttribute(Qt.WA_InputMethodEnabled, True)
@@ -3885,8 +3922,8 @@ def _build_option_widget(option: dict, parent_node=None) -> QWidget | None:
                 path_edit.setText(path)
 
         browse.clicked.connect(pick_file)
-        layout.addWidget(path_edit, 1)
-        layout.addWidget(browse)
+        file_layout.addWidget(path_edit, 1)
+        file_layout.addWidget(browse)
         widget = container
     elif opt_type == "dataset_loader":
         widget = DatasetLoaderConfigWidget()
@@ -4121,6 +4158,12 @@ class DatasetLoaderConfigWidget(QWidget):
             if _EXTRA_READER_PARAMS:
                 read_kwargs.update(_EXTRA_READER_PARAMS)
 
+            sheet = read_kwargs.get("sheet_name")
+            if isinstance(sheet, str) and sheet.strip().isdigit():
+                read_kwargs["sheet_name"] = int(sheet.strip())
+            if reader_name == "read_json" and str(path).lower().endswith((".jsonl", ".ndjson")):
+                read_kwargs["lines"] = True
+
             # Load full dataset
             if reader_name in ("read_csv", "read_table"):
                 read_kwargs.pop("chunksize", None)
@@ -4211,7 +4254,7 @@ def _reader_fields(reader_name: str) -> list[dict]:
         ]
     if reader_name == "read_json":
         return base + [
-            {"name": "lines", "label": "Lines (jsonl)", "type": "check", "value": True},
+            {"name": "lines", "label": "Lines (jsonl)", "type": "check", "value": False},
             {"name": "chunksize", "label": "Chunk Size", "type": "spin", "min": 1000, "max": 100000, "value": 5000},
         ]
     if reader_name == "read_excel":
@@ -4352,7 +4395,7 @@ def _infer_port_type(name: str) -> str:
         return "categorical"
     if "tensor" in lower:
         return "tensor"
-    if "metric" in lower or "graph" in lower:
+    if "metric" in lower or "graph" in lower or "visualization" in lower:
         return "metrics"
     return "numeric"
 

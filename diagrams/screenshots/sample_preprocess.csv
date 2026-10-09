@@ -1,0 +1,13 @@
+age,income,city,plan,score,visits
+22.0,28000.0,Bengaluru,Basic,0.42,3.0
+31.0,54000.0,Delhi,Plus,0.81,8.0
+,41000.0,Mumbai,Basic,,5.0
+45.0,,Bengaluru,Pro,0.67,12.0
+28.0,36000.0,,Plus,0.55,4.0
+36.0,72000.0,Chennai,Pro,0.91,
+19.0,19000.0,Delhi,Basic,0.33,2.0
+,48000.0,Mumbai,,0.74,7.0
+52.0,,Chennai,Plus,0.62,9.0
+41.0,61000.0,Bengaluru,Pro,,6.0
+27.0,33000.0,Delhi,Basic,0.48,3.0
+33.0,45000.0,,Plus,0.7,5.0

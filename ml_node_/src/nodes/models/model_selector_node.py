@@ -323,27 +323,16 @@ class EnsembleBuilderNode(NodeRuntime):
         weights_str = self.get_option("Weights", "1,1,1")
         
         try:
-            from sklearn.ensemble import VotingClassifier, VotingRegressor
-            
             weights = None
             if use_weights:
-                weights = [float(w.strip()) for w in weights_str.split(",")][:len(models)]
+                weights = [float(w.strip()) for w in str(weights_str).split(",") if w.strip()][:len(models)]
+                if len(weights) != len(models):
+                    return NodeResult(
+                        outputs={}, success=False,
+                        error_message=f"Expected {len(models)} weights, got {len(weights)}",
+                    )
             
-            # Create estimators list
-            estimators = [(f"model_{i}", m) for i, m in enumerate(models)]
-            
-            # Check if classification or regression
-            if hasattr(models[0], "predict_proba"):
-                ensemble = VotingClassifier(
-                    estimators=estimators,
-                    voting=voting,
-                    weights=weights
-                )
-            else:
-                ensemble = VotingRegressor(
-                    estimators=estimators,
-                    weights=weights
-                )
+            ensemble = PrefitVotingEnsemble(models, voting=voting, weights=weights)
             
             return NodeResult(
                 outputs={
@@ -352,9 +341,70 @@ class EnsembleBuilderNode(NodeRuntime):
                 metadata={
                     "method": method,
                     "n_models": len(models),
-                    "voting": voting,
+                    "voting": ensemble.voting,
+                    "task": "classification" if ensemble.is_classifier else "regression",
                 }
             )
         
         except Exception as e:
             return NodeResult(outputs={}, success=False, error_message=str(e))
+
+
+class PrefitVotingEnsemble:
+    """Voting ensemble over models that are already trained.
+
+    sklearn's VotingClassifier/VotingRegressor refit their estimators, which
+    this node cannot do because it only receives fitted models.
+    """
+
+    def __init__(self, models: list, voting: str = "soft", weights: list[float] | None = None) -> None:
+        self.estimators_ = list(models)
+        self.weights = np.asarray(weights, dtype=float) if weights else np.ones(len(models))
+        self.is_classifier = all(_is_classifier(m) for m in models)
+
+        if self.is_classifier:
+            classes = [np.asarray(getattr(m, "classes_", [])) for m in models]
+            same_classes = all(len(c) and np.array_equal(c, classes[0]) for c in classes)
+            can_soft = same_classes and all(hasattr(m, "predict_proba") for m in models)
+            self.voting = "soft" if voting == "soft" and can_soft else "hard"
+            self.classes_ = classes[0] if same_classes else None
+        else:
+            self.voting = "average"
+            self.classes_ = None
+
+    @property
+    def predict_proba(self):
+        if not (self.is_classifier and self.voting == "soft"):
+            raise AttributeError("predict_proba is only available for soft-voting classifiers")
+        return self._predict_proba
+
+    def _predict_proba(self, X) -> np.ndarray:
+        probas = np.array([m.predict_proba(X) for m in self.estimators_])
+        return np.average(probas, axis=0, weights=self.weights)
+
+    def predict(self, X) -> np.ndarray:
+        if not self.is_classifier:
+            preds = np.array([np.asarray(m.predict(X)).ravel() for m in self.estimators_])
+            return np.average(preds, axis=0, weights=self.weights)
+
+        if self.voting == "soft":
+            return self.classes_[np.argmax(self._predict_proba(X), axis=1)]
+
+        preds = np.column_stack([np.asarray(m.predict(X)).ravel() for m in self.estimators_])
+        labels, idx = np.unique(preds, return_inverse=True)
+        idx = idx.reshape(preds.shape)
+        votes = np.zeros((preds.shape[0], len(labels)))
+        rows = np.arange(preds.shape[0])
+        for j, w in enumerate(self.weights):
+            votes[rows, idx[:, j]] += w
+        return labels[np.argmax(votes, axis=1)]
+
+
+def _is_classifier(model) -> bool:
+    try:
+        from sklearn.base import is_classifier
+        if is_classifier(model):
+            return True
+    except Exception:
+        pass
+    return hasattr(model, "classes_")

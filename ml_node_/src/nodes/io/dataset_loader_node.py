@@ -281,6 +281,72 @@ class ColumnSelectorNode(NodeRuntime):
         )
 
 
+class DataFrameColumnSelectorNode(NodeRuntime):
+    """Select a subset of columns, like df[['col1', 'col2']]."""
+
+    def run(self, inputs: dict[str, Any]) -> NodeResult:
+        data = inputs.get("Chunk")
+        if data is None:
+            data = inputs.get("Data")
+        if data is None:
+            return NodeResult(outputs={}, success=False, error_message="No data")
+
+        df = ensure_dataframe(data)
+        cols = [c.strip() for c in str(self.get_option("Columns", "") or "").split(",") if c.strip()]
+        existing = [c for c in cols if c in df.columns]
+        selected = df[existing].copy() if existing else df
+
+        return NodeResult(
+            outputs={"Selected DataFrame": selected},
+            metadata={"missing_columns": [c for c in cols if c not in df.columns]},
+        )
+
+
+class ColumnJoinerNode(NodeRuntime):
+    """Join 2+ DataFrames side-by-side."""
+
+    PORT_ORDER = ("Left DataFrame", "Right DataFrame")
+
+    def run(self, inputs: dict[str, Any]) -> NodeResult:
+        reset_index = bool(self.get_option("Reset Index", True))
+
+        ordered_keys = [k for k in self.PORT_ORDER if k in inputs]
+        ordered_keys += [k for k in inputs if k not in self.PORT_ORDER and k not in ("Data", "Chunk")]
+
+        frames: list[pd.DataFrame] = []
+        for key in ordered_keys:
+            value = inputs.get(key)
+            for item in value if isinstance(value, list) else [value]:
+                if isinstance(item, (pd.DataFrame, pd.Series)):
+                    frame = ensure_dataframe(item).copy()
+                    frames.append(frame.reset_index(drop=True) if reset_index else frame)
+
+        if not frames:
+            fallback = inputs.get("Data")
+            if fallback is None:
+                return NodeResult(outputs={}, success=False, error_message="No input DataFrames")
+            frames = [ensure_dataframe(fallback).copy()]
+
+        joined = pd.concat(frames, axis=1)
+        if joined.columns.duplicated().any():
+            seen: dict[str, int] = {}
+            new_cols: list[str] = []
+            for col in joined.columns:
+                name = str(col)
+                if name in seen:
+                    seen[name] += 1
+                    new_cols.append(f"{name}_{seen[name]}")
+                else:
+                    seen[name] = 0
+                    new_cols.append(name)
+            joined.columns = new_cols
+
+        return NodeResult(
+            outputs={"Joined DataFrame": joined},
+            metadata={"n_inputs": len(frames), "columns": len(joined.columns)},
+        )
+
+
 class FilterNode(NodeRuntime):
     """Filter rows by condition."""
     

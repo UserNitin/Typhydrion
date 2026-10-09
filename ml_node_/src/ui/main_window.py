@@ -209,6 +209,14 @@ class _GlowButton(QPushButton):
         self._color_anim.setEasingCurve(QEasingCurve.OutCubic)
         self._color_anim.start()
 
+    def leaveEvent(self, event) -> None:  # noqa: N802
+        super().leaveEvent(event)
+        self._color_anim = QPropertyAnimation(self, b"bgColor", self)
+        self._color_anim.setDuration(280)
+        self._color_anim.setEndValue(QColor(28, 40, 56, 220))
+        self._color_anim.setEasingCurve(QEasingCurve.OutCubic)
+        self._color_anim.start()
+
 
 class _ProjectSaveWorker(QObject):
     save_finished = Signal(dict)
@@ -227,14 +235,6 @@ class _ProjectSaveWorker(QObject):
             self.save_finished.emit({"ok": True, "path": path, "autosave": autosave, "error": ""})
         except Exception as e:
             self.save_finished.emit({"ok": False, "path": path, "autosave": autosave, "error": str(e)})
-
-    def leaveEvent(self, event) -> None:  # noqa: N802
-        super().leaveEvent(event)
-        self._color_anim = QPropertyAnimation(self, b"bgColor", self)
-        self._color_anim.setDuration(280)
-        self._color_anim.setEndValue(QColor(28, 40, 56, 220))
-        self._color_anim.setEasingCurve(QEasingCurve.OutCubic)
-        self._color_anim.start()
 
 
 class MainWindow(QMainWindow):
@@ -952,7 +952,7 @@ class MainWindow(QMainWindow):
     def _go_home(self) -> None:
         if not self._confirm_continue_with_unsaved_changes():
             return
-        self._shutdown_background_threads()
+        self._shutdown_background_threads(stop_save_thread=False)
         self._workspace_built = False
         self._logo_label = None
         self._menu_card = None
@@ -1506,6 +1506,9 @@ class MainWindow(QMainWindow):
 
     def _open_data_analysis_profiler(self) -> None:
         # Dedicated Data Analysis layout in the same main window (no other cards/docks).
+        if self._workspace_built and not self._confirm_continue_with_unsaved_changes():
+            return
+        self._shutdown_background_threads(stop_save_thread=False)
         self._workspace_built = False
         self._logo_label = None
         self._menu_card = None

@@ -18,6 +18,9 @@ import numpy as np
 
 
 class DataPreviewWindow(QWidget):
+    MAX_PREVIEW_ROWS = 50
+    MAX_PREVIEW_COLS = 25
+
     dtype_change_requested = Signal(str, str)  # (column_name, target_dtype_key)
 
     def __init__(self) -> None:
@@ -295,21 +298,17 @@ class DataPreviewWindow(QWidget):
             if cols:
                 df = df[cols]
 
-        # Limit rows/columns for display (to keep UI responsive with large datasets)
-        max_display_rows = 500
-        max_display_cols = 80
         total_rows = len(df)
-        preview_rows = min(max_display_rows, total_rows)
-        display_df = df.head(preview_rows)
+        preview_rows = min(self.MAX_PREVIEW_ROWS, total_rows)
+        display_df = df.iloc[:preview_rows, : self.MAX_PREVIEW_COLS]
 
-        if len(display_df.columns) > max_display_cols:
-            display_df = display_df.iloc[:, :max_display_cols]
-            cols_note = f" and first {max_display_cols}/{len(df.columns)} columns"
+        if len(df.columns) > self.MAX_PREVIEW_COLS:
+            cols_note = f", first {self.MAX_PREVIEW_COLS} of {len(df.columns)} columns"
         else:
             cols_note = ""
 
-        if total_rows > max_display_rows:
-            base = f"Showing {preview_rows} of {len(self._df)} rows{cols_note} (full dataset loaded)"
+        if total_rows > preview_rows:
+            base = f"Preview: first {preview_rows} of {total_rows:,} rows{cols_note}"
         else:
             base = f"Showing all {total_rows} rows{cols_note}"
 
@@ -325,19 +324,28 @@ class DataPreviewWindow(QWidget):
         )
         self._update_dtype_hint()
 
-        self._table.setRowCount(len(df))
-        self._table.setColumnCount(len(df.columns))
-        self._table.setHorizontalHeaderLabels([str(c) for c in df.columns])
+        try:
+            cells = df.astype(str).to_numpy()
+        except Exception:
+            cells = [[str(v) for v in row] for row in df.itertuples(index=False)]
 
-        for row_idx in range(len(df)):
+        self._table.setUpdatesEnabled(False)
+        try:
+            self._table.clearContents()
+            self._table.setRowCount(len(df))
+            self._table.setColumnCount(len(df.columns))
+            self._table.setHorizontalHeaderLabels([str(c) for c in df.columns])
+
+            for row_idx, row in enumerate(cells):
+                for col_idx, text in enumerate(row):
+                    item = QTableWidgetItem(text)
+                    item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                    self._table.setItem(row_idx, col_idx, item)
+
+            metrics = self._table.fontMetrics()
             for col_idx, col_name in enumerate(df.columns):
-                value = df.iloc[row_idx, col_idx]
-                item = QTableWidgetItem(str(value))
-                item.setFlags(item.flags() & ~Qt.ItemIsEditable)
-                self._table.setItem(row_idx, col_idx, item)
-
-        # Resize columns to content (with a max width)
-        for col_idx in range(len(df.columns)):
-            self._table.resizeColumnToContents(col_idx)
-            if self._table.columnWidth(col_idx) > 200:
-                self._table.setColumnWidth(col_idx, 200)
+                sample = [str(col_name)] + [str(cells[r][col_idx]) for r in range(min(20, len(cells)))]
+                width = max(metrics.horizontalAdvance(s) for s in sample) + 24
+                self._table.setColumnWidth(col_idx, min(max(width, 60), 200))
+        finally:
+            self._table.setUpdatesEnabled(True)

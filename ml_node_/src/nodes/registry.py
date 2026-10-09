@@ -6,7 +6,8 @@ from __future__ import annotations
 # Data Ingestion Nodes
 from nodes.io.dataset_loader_node import (
     DatasetLoaderNode, DataPreviewNode, DatasetMergerNode,
-    ColumnSelectorNode, FilterNode, FinalOutputNode
+    ColumnSelectorNode, FilterNode, FinalOutputNode,
+    DataFrameColumnSelectorNode, ColumnJoinerNode,
 )
 from nodes.io.export_node import ExportModelNode, InferenceNode
 
@@ -57,6 +58,10 @@ NODE_REGISTRY = {
     "Dataset Merger": DatasetMergerNode,
     "Column Selector": ColumnSelectorNode,
     "Filter Node": FilterNode,
+    "DataFrame Column Selector": DataFrameColumnSelectorNode,
+    "DF Column Selector": DataFrameColumnSelectorNode,
+    "Column Joiner": ColumnJoinerNode,
+    "DataFrame Joiner": ColumnJoinerNode,
     
     # Export & Inference
     "Model Export": ExportModelNode,

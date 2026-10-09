@@ -55,7 +55,7 @@ class AnomalyNode(NodeRuntime):
             self.set_fitted_state("model", model)
             
             # Calculate anomaly statistics
-            n_anomalies = int((labels == -1).sum())
+            n_anomalies = int(labels.sum())
             anomaly_pct = float(n_anomalies / len(labels) * 100)
             
             return NodeResult(
@@ -117,7 +117,7 @@ class AnomalyNode(NodeRuntime):
             labels = model.fit_predict(X)
             scores = -model.score_samples(X)
         
-        # Convert labels: sklearn uses 1 for normal, -1 for anomaly
+        # Every detector above returns sklearn's convention: 1 normal, -1 anomaly.
         # We convert to: 0 for normal, 1 for anomaly (more intuitive)
         labels = np.where(labels == -1, 1, 0)
         
@@ -158,7 +158,7 @@ class AnomalyNode(NodeRuntime):
             
             # Threshold for anomaly
             threshold = np.percentile(mse, (1 - contamination) * 100)
-            labels = (mse > threshold).astype(int)
+            labels = np.where(mse > threshold, -1, 1)
             
             return mse, labels
             
@@ -167,7 +167,7 @@ class AnomalyNode(NodeRuntime):
             z_scores = np.abs((X - X.mean()) / (X.std() + 1e-8))
             scores = z_scores.max(axis=1).values
             threshold = np.percentile(scores, (1 - contamination) * 100)
-            labels = (scores > threshold).astype(int)
+            labels = np.where(scores > threshold, -1, 1)
             return scores, labels
     
     def predict(self, X) -> tuple[np.ndarray, np.ndarray]:

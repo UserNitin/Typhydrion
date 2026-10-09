@@ -77,7 +77,22 @@ class PipelineExecutor:
 				initial_inputs=initial_inputs_by_node.get(node_id, {}),
 			)
 
-			result = self._runner.run_node(node_payload, inputs)
+			precomputed = node_payload.get("precomputed_outputs")
+			if isinstance(precomputed, dict):
+				# Node already ran; reuse its real outputs instead of re-running it
+				# with only the generic Data/Chunk inputs.
+				now = time.perf_counter()
+				result = NodeExecutionResult(
+					node_id=node_id,
+					node_title=str(node_payload.get("title", "") or ""),
+					success=True,
+					outputs=dict(precomputed),
+					primary_output=node_payload.get("precomputed_primary", inputs.get("Data")),
+					started_at=now,
+					finished_at=now,
+				)
+			else:
+				result = self._runner.run_node(node_payload, inputs)
 			node_results[node_id] = result
 
 			if not result.success:

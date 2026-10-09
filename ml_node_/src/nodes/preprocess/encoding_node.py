@@ -127,14 +127,17 @@ class EncodingNode(NodeRuntime):
     def _target_encode(self, df: pd.DataFrame, cols: list[str], 
                        target: pd.Series, state: dict) -> pd.DataFrame:
         """Target mean encoding."""
-        for col in cols:
-            means = df.groupby(col)[target.name].mean() if hasattr(target, 'name') and target.name else df[col].map(
-                df.assign(_target=target).groupby(col)["_target"].mean()
+        target_values = np.asarray(target).ravel()
+        if len(target_values) != len(df):
+            raise ValueError(
+                f"Target length ({len(target_values)}) does not match data length ({len(df)})"
             )
-            if hasattr(target, 'name') and target.name:
-                df_temp = df.copy()
-                df_temp['_target'] = target.values
-                means = df_temp.groupby(col)['_target'].mean()
+        if not np.issubdtype(target_values.dtype, np.number):
+            target_values = pd.factorize(target_values)[0].astype(float)
+        target_series = pd.Series(target_values, index=df.index)
+
+        for col in cols:
+            means = target_series.groupby(df[col]).mean()
             df[col] = df[col].map(means)
             state[col] = {"means": means.to_dict(), "type": "target"}
         return df
@@ -142,13 +145,12 @@ class EncodingNode(NodeRuntime):
     def _binary_encode(self, df: pd.DataFrame, cols: list[str], state: dict) -> pd.DataFrame:
         """Binary encode categorical columns."""
         for col in cols:
-            categories = df[col].unique().tolist()
-            cat_to_int = {cat: i for i, cat in enumerate(categories)}
+            encoded, categories = pd.factorize(df[col], use_na_sentinel=False)
+            cat_to_int = {cat: i for i, cat in enumerate(categories.tolist())}
             
             max_val = len(categories) - 1
             n_bits = max(1, int(np.ceil(np.log2(max_val + 1))))
             
-            encoded = df[col].map(cat_to_int)
             for bit in range(n_bits):
                 df[f"{col}_bit{bit}"] = (encoded >> bit) & 1
             
